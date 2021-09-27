@@ -31,6 +31,7 @@ function doGet(e) {
     const code = param.code;
     // ----- getCard -----
     const id = param.id;
+    const ids = param.ids;
     // -----------------
     if (code !== undefined) { // 如果兩者皆無則不做事
         let userToken = getAuthToken(code);
@@ -54,19 +55,32 @@ function doGet(e) {
             Logger.log('getAuthToken no get token');
             return ContentService.createTextOutput(stateBack('fail', `not auth user`)).setMimeType(ContentService.MimeType.JSON);
         }
-    } else if (id !== undefined) { // 尋找id
+    } else if (id !== undefined || ids !== undefined) { // 尋找id
         // 製作卡片 getID (參)
-        const userInfo = searchUser(id);
+        let userInfo;
+        if(id !== undefined){
+            userInfo = searchUser(id);
+        }else {
+            userInfo = searchUser(ids);
+        }
         if (userInfo.hasOwnProperty('refresh')) {
             const token = getNewToken(userInfo.refresh);
-            const nowPlay = getNowPlay(token)
+            const nowPlay = getNowPlay(token);
             // now play not found -> get recently
             if (nowPlay.hasOwnProperty('name')) {
-                return ContentService.createTextOutput(stateBack('ok', nowPlay)).setMimeType(ContentService.MimeType.JSON);
+                if(id !== undefined){
+                    return showSVG(nowPlay);
+                } else {
+                    return ContentService.createTextOutput(stateBack('ok', nowPlay)).setMimeType(ContentService.MimeType.JSON);
+                }
             } else {
                 const recentlyPlay = getRecentlyPlay(token);
                 if (recentlyPlay.hasOwnProperty('name')) {
-                    return ContentService.createTextOutput(stateBack('ok', recentlyPlay)).setMimeType(ContentService.MimeType.JSON);
+                    if(id !== undefined) {
+                        return showSVG(recentlyPlay)
+                    }else {
+                        return ContentService.createTextOutput(stateBack('ok', recentlyPlay)).setMimeType(ContentService.MimeType.JSON);
+                    }
                 } else {
                     return ContentService.createTextOutput(stateBack('fail', `not have play now`)).setMimeType(ContentService.MimeType.JSON);
                 }
@@ -171,10 +185,17 @@ function getNowPlay(token) {
     if (res.getContentText() != '') {
         const resNowPlay = JSON.parse(res.getContentText());
         if (resNowPlay.hasOwnProperty('item')) {
-            returnObj.type = 'now'
-            returnObj.singer = resNowPlay.item.album.artists[0].name;
-            returnObj.name = resNowPlay.item.name;
-            returnObj.pic = imageToBase(resNowPlay.item.album.images[1].url);
+            try {
+                returnObj.type = 'Now Playing'
+                returnObj.singer = resNowPlay.item.album.artists[0].name;
+                returnObj.name = resNowPlay.item.name;
+                returnObj.pic = imageToBase(resNowPlay.item.album.images[1].url);
+            }catch (e){
+                returnObj.type = undefined;
+                returnObj.singer = undefined;
+                returnObj.name = undefined;
+                returnObj.pic = undefined;
+            }
         }
     }
     return returnObj
@@ -194,7 +215,7 @@ function getRecentlyPlay(token) {
     if (res.getContentText() != '') {
         const recentlyPlay = JSON.parse(res.getContentText());
         if (recentlyPlay.hasOwnProperty('items')) {
-            returnObj.type = 'recently';
+            returnObj.type = 'Recently Played';
             returnObj.singer = recentlyPlay.items[0].track.album.artists[0].name;
             returnObj.name = recentlyPlay.items[0].track.name;
             returnObj.pic = imageToBase(recentlyPlay.items[0].track.album.images[1].url);
@@ -222,6 +243,7 @@ function addUser(userInfo, userToken) {
 }
 
 function searchUser(userID) {
+
     const sheet = loadSheet();
     let rowLength = sheet.getLastRow() - 1; //取行長度
     let columnLength = sheet.getLastColumn(); //取列長度
@@ -257,7 +279,7 @@ function imageToBase(url) {
     let response = UrlFetchApp.fetch(url);
     let fileBlob = response.getBlob().getBytes();
     let base64 = Utilities.base64Encode(fileBlob);
-    return `data:image/jpeg;base64,${base64}`
+    return `${base64}`
 }
 
 function stateBack(state, message) {
@@ -265,6 +287,28 @@ function stateBack(state, message) {
     stateObj.state = state;
     stateObj.message = message
     return JSON.stringify(stateObj);
+}
+
+function showCard(data){
+    let template = HtmlService.createTemplateFromFile('index.html');
+    const type = data.type === 'Now Playing' ? `<div class="item">Now Playing</div>` : `<div class="item">Recently Played</div>`;
+    const title = `<div class="item"> ${data.name}</div>`;
+    const singer = `<div class="item" style="font-size: 0.9rem; color: lightgray">${data.singer}</div>`;
+    const pic = `<img class="item" src="data:image/jpeg;base64,${data.pic}" alt=""/>`
+    // document.getElementById('inputBlock').innerHTML = `${type} ${title} ${singer} ${pic}`
+    template['music_card'] = `<div id="inputBlock" style="background-color:#191414">${type} ${title} ${singer} ${pic}</div>`;
+    return template.evaluate();
+}
+
+function showSVG(data){
+    let template = HtmlService.createTemplateFromFile('svg.html');
+    template.type = data.type === 'Now Playing' ? `Now Playing` : `Recently Playing`;
+    template.name = data.name;
+    template.singer = data.singer;
+    template.image = data.pic;
+    // document.getElementById('inputBlock').innerHTML = `${type} ${title} ${singer} ${pic}`
+    // template['music_card'] = `<div id="inputBlock" style="background-color:#191414">${type} ${title} ${singer} ${pic}</div>`;
+    return template.evaluate();
 }
 
 // gas not have UrlSearchParams use it
