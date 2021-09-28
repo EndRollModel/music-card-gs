@@ -172,7 +172,7 @@ function getNewToken(token) {
 
 function getNowPlay(token) {
     // Logger.log('start getNowPlay');
-    const returnObj = {}
+    let returnObj = {}
     const requestOption = {
         method: 'GET',
         headers: {
@@ -191,10 +191,7 @@ function getNowPlay(token) {
                 returnObj.name = resNowPlay.item.name;
                 returnObj.pic = imageToBase(resNowPlay.item.album.images[1].url);
             }catch (e){
-                returnObj.type = undefined;
-                returnObj.singer = undefined;
-                returnObj.name = undefined;
-                returnObj.pic = undefined;
+                returnObj = {};
             }
         }
     }
@@ -203,6 +200,7 @@ function getNowPlay(token) {
 
 function getRecentlyPlay(token) {
     const returnObj = {}
+    let limitCount = 5; // 一次讀取
     const requestOption = {
         method: 'GET',
         headers: {
@@ -210,15 +208,17 @@ function getRecentlyPlay(token) {
             // 'Content-Type' : 'application/x-www-form-urlencoded'
         }
     }
-    const res = UrlFetchApp.fetch(recently_url + '?limit=1', requestOption);
+    const res = UrlFetchApp.fetch(recently_url + '?limit=' + limitCount, requestOption);
     // Logger.log(res.getContentText())
     if (res.getContentText() != '') {
         const recentlyPlay = JSON.parse(res.getContentText());
+        const itemCount = recentlyPlay.items.length;
+        const randomTrack = (itemCount >= limitCount) ? Math.floor(Math.random() * limitCount) + 1 : Math.floor(Math.random() * itemCount) + 1;
         if (recentlyPlay.hasOwnProperty('items')) {
             returnObj.type = 'Recently Played';
-            returnObj.singer = recentlyPlay.items[0].track.album.artists[0].name;
-            returnObj.name = recentlyPlay.items[0].track.name;
-            returnObj.pic = imageToBase(recentlyPlay.items[0].track.album.images[1].url);
+            returnObj.singer = recentlyPlay.items[randomTrack].track.album.artists[0].name;
+            returnObj.name = recentlyPlay.items[randomTrack].track.name;
+            returnObj.pic = imageToBase(recentlyPlay.items[randomTrack].track.album.images[1].url);
         }
     }
     return returnObj
@@ -302,7 +302,7 @@ function showCard(data){
 
 function showSVG(data){
     let template = HtmlService.createTemplateFromFile('svg.html');
-    template.type = data.type === 'Now Playing' ? `Now Playing` : `Recently Playing`;
+    template.type = data.type === 'Now Playing' ? `Now Playing` : `Recently Played`;
     template.name = data.name;
     template.singer = data.singer;
     template.image = data.pic;
