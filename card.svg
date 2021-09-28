@@ -21,7 +21,8 @@
         pic : res.message.pic,
         }
         let queryString = new URLSearchParams(obj).toString();
-        window.location.href(window.location.protocol + window.location.hostname.replace('card.svg', 'card2.svg') + '?' + queryString)
+        console.log(window.location.protocol + window.location.hostname.replace('card.svg', 'card2.svg') + '?' + queryString)
+        location.href(window.location.protocol + window.location.hostname.replace('card.svg', 'card2.svg') + '?' + queryString)
         })
         }
         }

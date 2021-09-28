@@ -7,6 +7,7 @@
             document.getElementById('item_name').textContent = urlParams.name;
             document.getElementById('item_singer').textContent = urlParams.singer;
             document.getElementById('item_image').src = `data:image/jpeg;base64,${urlParams.pic}`;
+            document.getElementById('inputBlock').style.display = 'flex';
         }
     </script>
     <foreignObject height="450px" width="300px">
