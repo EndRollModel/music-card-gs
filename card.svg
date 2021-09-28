@@ -19,8 +19,7 @@
         pic : res.message.pic,
         }
         let queryString = new URLSearchParams(obj).toString();
-        console.log(window.location.protocol + window.location.hostname.replace('card.svg', 'card2.svg') + '?' + queryString)
-        location.href = window.location.protocol + window.location.hostname.replace('card.svg', 'card2.svg') + '?' + queryString
+        location.href = 'https://endrollmodel.github.io/music-card/card2.svg' + '?' + queryString
         })
         }
         }
