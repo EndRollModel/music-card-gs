@@ -7,13 +7,11 @@
         fetch(`https://script.google.com/macros/s/AKfycbwGzd-nevb-6AJnY3IKFiin-QdPkCZZdlCpKCX8SMyWWpk4uaU/exec?ids=${urlParams.get('id')}`, {method: 'GET'})
         .then(res => res.json())
         .then(res => {
-        // document.getElementById('item_type').innerHTML = `<stronge>${res.message.type}</stronge>`;
         document.getElementById('item_type').textContent = res.message.type;
-        // document.getElementById('item_name').innerHTML = `<stronge>${res.message.name}</stronge>`;
         document.getElementById('item_name').textContent = res.message.name;
         document.getElementById('item_singer').textContent = res.message.singer;
         document.getElementById('item_image').src = `data:image/jpeg;base64,${res.message.pic}`;
-        //document.getElementById('inputBlock').style.display = 'flex';
+        document.getElementById('inputBlock').style.display = 'flex';
         const obj = {
         type : res.message.type,
         name : res.message.name,
@@ -22,7 +20,7 @@
         }
         let queryString = new URLSearchParams(obj).toString();
         console.log(window.location.protocol + window.location.hostname.replace('card.svg', 'card2.svg') + '?' + queryString)
-        location.href(window.location.protocol + window.location.hostname.replace('card.svg', 'card2.svg') + '?' + queryString)
+        location.href = window.location.protocol + window.location.hostname.replace('card.svg', 'card2.svg') + '?' + queryString
         })
         }
         }
