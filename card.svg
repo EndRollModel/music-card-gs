@@ -4,7 +4,7 @@
         function setCardBody(){
         let urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('id')) {
-        fetch(`https://script.google.com/macros/s/AKfycbwGzd-nevb-6AJnY3IKFiin-QdPkCZZdlCpKCX8SMyWWpk4uaU/exec?ids=313u5rd4zov6fvufwzpngtgb3hvm`, {method: 'GET'})
+        fetch(`https://script.google.com/macros/s/AKfycbwGzd-nevb-6AJnY3IKFiin-QdPkCZZdlCpKCX8SMyWWpk4uaU/exec?ids=${urlParams.get('id')}`, {method: 'GET'})
         .then(res => res.json())
         .then(res => {
         // document.getElementById('item_type').innerHTML = `<stronge>${res.message.type}</stronge>`;
