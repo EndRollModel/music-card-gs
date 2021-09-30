@@ -3,10 +3,10 @@
     <script type="text/javascript">
         function setCardBody(){
             let urlParams = new URLSearchParams(window.location.search);
-            document.getElementById('item_type').textContent = urlParams.type;
-            document.getElementById('item_name').textContent = urlParams.name;
-            document.getElementById('item_singer').textContent = urlParams.singer;
-            document.getElementById('item_image').src = `data:image/jpeg;base64,${urlParams.pic}`;
+            document.getElementById('item_type').textContent = urlParams.get('type');
+            document.getElementById('item_name').textContent = urlParams.get('name');
+            document.getElementById('item_singer').textContent = urlParams.get('singer');
+            document.getElementById('item_image').src = `data:image/jpeg;base64,${urlParams.get('pic')}`;
             document.getElementById('inputBlock').style.display = 'flex';
         }
     </script>
