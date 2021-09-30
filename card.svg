@@ -19,7 +19,7 @@
         pic : res.message.pic,
         }
         let queryString = new URLSearchParams(obj).toString();
-        //location.href = 'https://endrollmodel.github.io/music-card/card2.svg' + '?' + queryString
+        location.href = 'https://endrollmodel.github.io/music-card/card2.svg' + '?' + queryString
         })
         }
         }
